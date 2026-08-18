@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gnome-terminal-restore"
+version = "1.0.0"
+description = "Save and restore GNOME Terminal windows, tabs, working directories and virtualenvs across a reboot"
+readme = "README.md"
+requires-python = ">=3.7"
+license = { text = "MIT" }
+keywords = ["gnome-terminal", "session", "restore", "tabs", "wayland", "linux", "desktop"]
+classifiers = [
+  "Environment :: X11 Applications :: GNOME",
+  "Intended Audience :: End Users/Desktop",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Topic :: Desktop Environment :: Gnome",
+  "Topic :: Utilities",
+]
+# PyGObject with the Atspi typelib is needed for window grouping, but it is a
+# system package (python3-gi, gir1.2-atspi-2.0) rather than a wheel, so it is
+# not declared here. Without it the tool still runs, restoring one window.
+dependencies = []
+
+[project.scripts]
+gt-save = "gnome_terminal_restore.save:main"
+gt-restore = "gnome_terminal_restore.restore:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-dir]
+"" = "src"

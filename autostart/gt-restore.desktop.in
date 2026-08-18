@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Restore terminal windows
+Comment=Reopen the GNOME Terminal windows and tabs saved before shutdown
+Exec=@BINDIR@/gt-restore --if-none
+Icon=org.gnome.Terminal
+Terminal=false
+X-GNOME-Autostart-enabled=true
+X-GNOME-Autostart-Delay=5

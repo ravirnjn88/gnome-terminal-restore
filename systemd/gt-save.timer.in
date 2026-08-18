@@ -1,0 +1,10 @@
+[Unit]
+Description=Snapshot GNOME Terminal windows and tabs periodically
+
+[Timer]
+OnCalendar=@ONCALENDAR@
+AccuracySec=30s
+Persistent=false
+
+[Install]
+WantedBy=timers.target

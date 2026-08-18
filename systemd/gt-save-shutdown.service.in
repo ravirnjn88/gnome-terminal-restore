@@ -1,0 +1,17 @@
+[Unit]
+Description=Snapshot GNOME Terminal windows and tabs at logout or shutdown
+DefaultDependencies=no
+Conflicts=shutdown.target
+Before=shutdown.target
+# Start after the terminal server, which means we are stopped (and take the
+# final snapshot) before it goes away.
+After=gnome-terminal-server.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/true
+ExecStop=@BINDIR@/gt-save --quiet
+
+[Install]
+WantedBy=default.target

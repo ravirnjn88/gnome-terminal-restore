@@ -1,0 +1,6 @@
+[Unit]
+Description=Snapshot GNOME Terminal windows and tabs
+
+[Service]
+Type=oneshot
+ExecStart=@BINDIR@/gt-save --quiet
