@@ -3,6 +3,8 @@
 Reopen your GNOME Terminal windows and tabs after a reboot — same windows, same
 tabs, same directories, same virtualenvs.
 
+> Written entirely by [Claude](https://claude.com/claude-code) — see [Provenance](#provenance).
+
 ```console
 $ gt-restore --list
 window 0 (3 tabs):
@@ -262,6 +264,26 @@ support are welcome contributions — see
 $ ./uninstall.sh            # remove everything, keep snapshots
 $ ./uninstall.sh --purge    # remove snapshots too
 ```
+
+## Provenance
+
+This project was created end to end by Claude (Claude Opus 5, working through
+[Claude Code](https://claude.com/claude-code)): the investigation into how GNOME
+Terminal exposes its structure, the design, the implementation, the tests, the
+installer, and this documentation.
+
+It was not written blind. Every mechanism described in
+[docs/DESIGN.md](docs/DESIGN.md) was probed against a live GNOME Terminal 3.44
+session on Wayland before being relied on — the accessibility tree was walked to
+confirm it really models windows and tabs, `/proc/<pid>/environ` was checked to
+confirm it cannot see a virtualenv activated after the shell started, and the
+title-tagging scheme was tested against a tab deliberately rewriting its own
+title ten times a second, which is what exposed the race the retry loop and slot
+inference now handle. The dead ends listed in that document — `WINDOWID`,
+`wmctrl`, GNOME Shell's `Eval`, GNOME Terminal's D-Bus tree — were each tried
+and ruled out on that session rather than assumed.
+
+Reviews, bug reports and patches from humans are very welcome.
 
 ## Contributing
 
