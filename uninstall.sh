@@ -28,7 +28,9 @@ fi
 rm -f "$CONFIG_HOME/systemd/user/gt-save.service" \
       "$CONFIG_HOME/systemd/user/gt-save.timer" \
       "$CONFIG_HOME/systemd/user/gt-save-shutdown.service"
-command -v systemctl >/dev/null 2>&1 && systemctl --user daemon-reload || true
+if command -v systemctl >/dev/null 2>&1; then
+    systemctl --user daemon-reload || true
+fi
 
 rm -f "$CONFIG_HOME/autostart/gt-restore.desktop"
 rm -f "$PREFIX/bin/gt-save" "$PREFIX/bin/gt-restore"
