@@ -29,8 +29,9 @@ def server_pids():
     return [pid for pid in _iter_pids() if _exe_name(pid) == SERVER_EXE]
 
 
-def terminal_running():
-    return bool(server_pids())
+def open_tab_count():
+    """How many tabs (shells) every terminal server has open right now."""
+    return sum(len(children(server)) for server in server_pids())
 
 
 def children(pid):

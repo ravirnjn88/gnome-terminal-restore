@@ -24,7 +24,7 @@ Usage: ./install.sh [options]
   --no-autostart    do not restore the layout automatically at login
   --no-hook         do not add the shell hook to ~/.bashrc
                     (directories are still saved; virtualenvs are not)
-  --no-systemd      install the commands only, no timer or shutdown unit
+  --no-systemd      install the commands only, no timer or logout snapshot
   -h, --help        show this message
 
 Environment: PREFIX, BASHRC, XDG_CONFIG_HOME are honoured.
@@ -127,10 +127,17 @@ if [ "$WITH_SYSTEMD" -eq 1 ]; then
     mkdir -p "$UNITDIR"
     render "$SRC_DIR/systemd/gt-save.service.in"          "$UNITDIR/gt-save.service"
     render "$SRC_DIR/systemd/gt-save.timer.in"            "$UNITDIR/gt-save.timer"
-    render "$SRC_DIR/systemd/gt-save-shutdown.service.in" "$UNITDIR/gt-save-shutdown.service"
+    mkdir -p "$UNITDIR/gnome-terminal-server.service.d"
+    render "$SRC_DIR/systemd/gnome-terminal-server.service.d/gt-save.conf.in" \
+           "$UNITDIR/gnome-terminal-server.service.d/gt-save.conf"
+    if command -v systemctl >/dev/null 2>&1; then
+        # 1.0.0 took the final snapshot from its own unit, which ran too late
+        systemctl --user disable --now gt-save-shutdown.service 2>/dev/null || true
+    fi
+    rm -f "$UNITDIR/gt-save-shutdown.service"
     if command -v systemctl >/dev/null 2>&1; then
         systemctl --user daemon-reload
-        systemctl --user enable --now gt-save.timer gt-save-shutdown.service
+        systemctl --user enable --now gt-save.timer
     else
         echo "warning: systemctl not found; units installed but not enabled" >&2
     fi
@@ -154,7 +161,7 @@ $APP installed.
 SUMMARY
 if [ "$WITH_SYSTEMD" -eq 1 ]; then
     echo "  timer        $UNITDIR/gt-save.timer (OnCalendar=$ONCALENDAR)"
-    echo "  shutdown     $UNITDIR/gt-save-shutdown.service"
+    echo "  at logout    $UNITDIR/gnome-terminal-server.service.d/gt-save.conf"
 fi
 if [ "$WITH_AUTOSTART" -eq 1 ]; then
     echo "  autostart    $AUTOSTARTDIR/gt-restore.desktop"
