@@ -2,6 +2,7 @@
 import os
 import sys
 import unittest
+from unittest import mock
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
 
@@ -163,6 +164,31 @@ class TestProcs(unittest.TestCase):
         self.assertTrue(procs.is_shell("/usr/bin/zsh -l"))
         self.assertFalse(procs.is_shell("vim notes.md"))
         self.assertFalse(procs.is_shell("ssh host"))
+
+    def test_open_tab_count_spans_every_server(self):
+        tabs = {10: [11, 12], 20: [21]}
+        with mock.patch.object(procs, "server_pids", return_value=list(tabs)), \
+                mock.patch.object(procs, "children", side_effect=tabs.get):
+            self.assertEqual(procs.open_tab_count(), 3)
+
+
+class TestIfNone(unittest.TestCase):
+    """``--if-none`` must not be defeated by one tab opened just after login."""
+
+    def run_with_tabs(self, count):
+        with mock.patch.object(procs, "open_tab_count", return_value=count), \
+                mock.patch("sys.stdout"), mock.patch("sys.stderr"):
+            # a missing snapshot makes main() return 1 once it gets past the check
+            return restore.main(["--if-none", "-f", "/nonexistent/snapshot.json"])
+
+    def test_restores_with_no_terminal_open(self):
+        self.assertEqual(self.run_with_tabs(0), 1)
+
+    def test_restores_past_a_single_fresh_tab(self):
+        self.assertEqual(self.run_with_tabs(1), 1)
+
+    def test_leaves_an_open_layout_alone(self):
+        self.assertEqual(self.run_with_tabs(2), 0)
 
 
 if __name__ == "__main__":

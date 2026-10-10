@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+- Login restore no longer gives up when a terminal is opened (for example with
+  Ctrl+Alt+T) just before the autostart entry runs. `--if-none` now skips only
+  when more than one tab is already open.
+- The final snapshot at logout or shutdown now actually captures the layout. It
+  runs as an `ExecStop=` drop-in on `gnome-terminal-server.service` instead of a
+  separate unit, which ran after the terminal server had already stopped.
+  `install.sh` removes the old `gt-save-shutdown.service`.
+
 ## [1.0.0] - 2026-08-19
 
 First release.

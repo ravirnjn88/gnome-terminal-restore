@@ -150,9 +150,21 @@ shell history so Up recalls it, and printed once.
   snapshot is always kept as `.prev`.
 - An empty result never overwrites a good snapshot: if no terminal is running,
   `gt-save` exits without writing.
-- The shutdown unit is ordered `After=gnome-terminal-server.service`, so systemd
-  stops it — and takes the final snapshot — *before* the terminal server dies.
-  Without that ordering the last snapshot could find nothing to record.
+- The final snapshot is an `ExecStop=` drop-in on `gnome-terminal-server.service`
+  itself, so it runs as the server is being stopped but before it is signalled,
+  while every tab is still readable. 1.0.0 used a separate unit ordered
+  `After=gnome-terminal-server.service`; in practice the session stops the
+  server (it is `PartOf=graphical-session.target`) outside that ordering, so
+  the unit ran after the server was gone and found nothing to record.
+
+## Login restore and `--if-none`
+
+The autostart entry runs `gt-restore --if-none` so that it never doubles up a
+layout that is already open. 1.0.0 skipped the restore whenever any terminal
+server was running, which lost a race: a terminal opened with Ctrl+Alt+T in the
+seconds after login starts the server a moment before the delayed autostart
+runs, and the restore was skipped. It now skips only when more than one tab is
+open — one tab is what a freshly opened terminal looks like, not a layout.
 
 ## What is deliberately not attempted
 

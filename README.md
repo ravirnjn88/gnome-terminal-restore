@@ -89,7 +89,7 @@ $ ./install.sh --help
                     OnCalendar expression (default: 30min)
   --no-autostart    do not restore the layout automatically at login
   --no-hook         do not add the shell hook to ~/.bashrc
-  --no-systemd      install the commands only, no timer or shutdown unit
+  --no-systemd      install the commands only, no timer or logout snapshot
 ```
 
 Then, once:
@@ -176,7 +176,7 @@ Everything respects the XDG base directory spec.
 | `~/.local/share/gnome-terminal-restore/live/` | per-tab state from the hook |
 | `~/.local/share/gnome-terminal-restore/rc/` | generated rc files, one per restored tab |
 | `~/.config/systemd/user/gt-save.{service,timer}` | periodic snapshots |
-| `~/.config/systemd/user/gt-save-shutdown.service` | final snapshot at logout |
+| `~/.config/systemd/user/gnome-terminal-server.service.d/gt-save.conf` | final snapshot at logout |
 | `~/.config/autostart/gt-restore.desktop` | restore at login |
 
 Set `GTR_DATA_DIR` to move the data directory, or `GTR_TERMINAL` to launch a
@@ -192,9 +192,15 @@ $ systemctl --user restart gt-save.timer
 $ systemctl --user list-timers gt-save.timer     # confirm the next run
 ```
 
-Interval only matters for an *unclean* shutdown. A normal logout or reboot
-triggers the shutdown unit, which snapshots before the terminal server exits,
-so nothing is lost regardless of the interval.
+Interval only matters for an *unclean* shutdown, such as a power cut. A normal
+logout or reboot stops the terminal server, and a drop-in on that service takes
+a snapshot before the server exits, so nothing is lost regardless of the
+interval.
+
+**Opening a terminal right after login.** The autostart entry restores unless
+more than one tab is already open, so a terminal you open with Ctrl+Alt+T in
+the first few seconds does not stop the restore — the saved windows open
+alongside it.
 
 **Turn off login restore.** Delete `~/.config/autostart/gt-restore.desktop`, or
 untick it in GNOME Tweaks → Startup Applications.

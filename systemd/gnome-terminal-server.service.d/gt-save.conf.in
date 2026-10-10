@@ -1,0 +1,8 @@
+# Take the final snapshot as the terminal server is being stopped at logout or
+# shutdown. ExecStop runs before systemd signals the server, so every tab is
+# still there to be read. A separate unit ordered against the server cannot do
+# this: the session stops the server outside that ordering.
+[Service]
+ExecStop=@BINDIR@/gt-save --quiet
+# The stock 5s also has to cover the snapshot, which reads every tab.
+TimeoutStopSec=15s

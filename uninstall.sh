@@ -27,7 +27,9 @@ if command -v systemctl >/dev/null 2>&1; then
 fi
 rm -f "$CONFIG_HOME/systemd/user/gt-save.service" \
       "$CONFIG_HOME/systemd/user/gt-save.timer" \
-      "$CONFIG_HOME/systemd/user/gt-save-shutdown.service"
+      "$CONFIG_HOME/systemd/user/gt-save-shutdown.service" \
+      "$CONFIG_HOME/systemd/user/gnome-terminal-server.service.d/gt-save.conf"
+rmdir "$CONFIG_HOME/systemd/user/gnome-terminal-server.service.d" 2>/dev/null || true
 if command -v systemctl >/dev/null 2>&1; then
     systemctl --user daemon-reload || true
 fi

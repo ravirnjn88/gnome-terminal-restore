@@ -124,7 +124,7 @@ def main(argv=None):
     parser.add_argument(
         "--if-none",
         action="store_true",
-        help="do nothing if a terminal is already open (used by the autostart entry)",
+        help="do nothing if more than one tab is already open (used by the autostart entry)",
     )
     parser.add_argument(
         "-f", "--file", metavar="PATH", help="restore from a specific snapshot file"
@@ -132,8 +132,10 @@ def main(argv=None):
     parser.add_argument("--version", action="version", version="%(prog)s " + __version__)
     args = parser.parse_args(argv)
 
-    if args.if_none and procs.terminal_running():
-        print("gt-restore: a terminal is already open, nothing to do")
+    # A single tab is what Ctrl+Alt+T at login gives you, not a layout worth
+    # keeping, and it can start a fraction of a second before this runs.
+    if args.if_none and procs.open_tab_count() > 1:
+        print("gt-restore: terminal tabs are already open, nothing to do")
         return 0
 
     path = args.file or (paths.previous_snapshot_path() if args.prev else paths.snapshot_path())
